@@ -169,9 +169,3 @@ if(alienCount===0){
     }
     creaAlieni()
 }
-if(alieno.y>=ship.y){
-    alert("Hai perso!")
-}
-if(levelCount==3){
-    alert("Hai vinto!")
-}
