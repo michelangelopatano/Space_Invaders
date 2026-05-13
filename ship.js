@@ -4,7 +4,21 @@ class Ship {
         this.y = y;
     }
 }
-
+class AlienProjectile {
+    constructor({position, velocity}) {
+        this.position = position;
+        this.velocity = velocity;
+        this.radius = 4;
+    }
+    draw() {
+        this.position.y=this.position.y+this.velocity.y;
+        ctx.beginPath();
+        ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.closePath();
+    }
+}
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
@@ -48,6 +62,9 @@ function loop() {
             ctx.drawImage(alienImg, alieno.x, alieno.y, alieno.width, alieno.height)
         }
     }
+    alienProjectiles.forEach(p => {
+        p.draw();
+    })
     requestAnimationFrame(loop);
 }
 
@@ -81,9 +98,10 @@ let alienX= tilesize;
 let alienY= tilesize;
 let alienImg;
 let alienRows=5;
-let alienColumns=9;
+let alienColumns=8;
 let alienCount=0;
 let alienVelocityX=1;
+const alienProjectiles = [];
 alienImg = new Image();
 alienImg.src="./alien.png";
 creaAlieni()
@@ -96,10 +114,64 @@ function creaAlieni(){
                 y: alienY + j*alienHeight,
                 width: alienWidth,
                 height: alienHeight,
-                alive: true
+                alive: true,
+                shoot: function(alienProjectiles){
+                    alienProjectiles.push(new AlienProjectile({
+                        position: {
+                            x:this.x+this.width/2,
+                            y:this.y+this.height
+                        },
+                        velocity: {
+                            x:0,
+                            y:5
+                        }
+                    }))
+                }
             }
             Arrayalieni.push(alieno)
         }
     }
     alienCount=Arrayalieni.length
+}
+let levelCount=1;
+let waveCount=1;
+if(levelCount==1){
+    setInterval(() => { 
+        if(Arrayalieni.length>0){
+            Arrayalieni[Math.floor(Math.random() * Arrayalieni.length)].shoot(alienProjectiles);
+        }
+    }, 750);
+}
+if(levelCount==2){
+    setInterval(() => { 
+        if(Arrayalieni.length>0){
+            Arrayalieni[Math.floor(Math.random() * Arrayalieni.length)].shoot(alienProjectiles);
+        }
+    }, 500);
+}
+if(levelCount==3){
+    setInterval(() => { 
+        if(Arrayalieni.length>0){
+            Arrayalieni[Math.floor(Math.random() * Arrayalieni.length)].shoot(alienProjectiles);
+        }
+    }, 400);
+}
+if(alienCount===0){
+    waveCount++
+    document.getElementById("h2").innerText="Livello: "+levelCount+" Ondata: "+waveCount;
+    if(waveCount==3){
+        waveCount=1;
+        levelCount++;
+        document.getElementById("h2").innerText="Livello: "+levelCount+" Ondata: "+waveCount;
+        alienColumns=Math.min(alienColumns+1, 15);
+        alienRows=Math.min(alienRows+1, 10);
+        alienVelocityX=alienVelocityX+0.5;
+    }
+    creaAlieni()
+}
+if(alieno.y>=ship.y){
+    alert("Hai perso!")
+}
+if(levelCount==3){
+    alert("Hai vinto!")
 }
