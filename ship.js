@@ -35,8 +35,17 @@ function loop() {
 
     ctx.drawImage(ship_img, ship.x, ship.y, 50, 50);
     for(let i=0; i<Arrayalieni.length; i++){
-        if(Arrayalieni[i].alive){
-            ctx.drawImage(Arrayalieni[i].img, Arrayalieni[i].x, Arrayalieni[i].y, Arrayalieni[i].width, Arrayalieni[i].height);
+        let alieno=Arrayalieni[i]
+        if(alieno.alive){
+            alieno.x=alieno.x+alienVelocityX;
+            if(alieno.x + alieno.width >=920 || alieno.x <=0){
+                alienVelocityX=alienVelocityX*-1;
+                alieno.x=alieno.x+alienVelocityX*2;
+                for(let j=0; j<Arrayalieni.length; j++){
+                    Arrayalieni[j].y=Arrayalieni[j].y+alienHeight
+                }
+            }
+            ctx.drawImage(alienImg, alieno.x, alieno.y, alieno.width, alieno.height)
         }
     }
     requestAnimationFrame(loop);
@@ -74,6 +83,7 @@ let alienImg;
 let alienRows=5;
 let alienColumns=9;
 let alienCount=0;
+let alienVelocityX=1;
 alienImg = new Image();
 alienImg.src="./alien.png";
 creaAlieni()
