@@ -8,7 +8,7 @@ class Ship {
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
-const ship = new Ship(450, 700);
+const ship = new Ship(450, 720);
 
 const bg = new Image();
 const ship_img = new Image();
