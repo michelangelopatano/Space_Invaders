@@ -135,6 +135,7 @@ function creaAlieni(){
 }
 let levelCount=1;
 let waveCount=1;
+let vite=3;
 if(levelCount==1){
     setInterval(() => { 
         if(Arrayalieni.length>0){
