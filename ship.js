@@ -34,7 +34,11 @@ function loop() {
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
     ctx.drawImage(ship_img, ship.x, ship.y, 50, 50);
-
+    for(let i=0; i<Arrayalieni.length; i++){
+        if(Arrayalieni[i].alive){
+            ctx.drawImage(Arrayalieni[i].img, Arrayalieni[i].x, Arrayalieni[i].y, Arrayalieni[i].width, Arrayalieni[i].height);
+        }
+    }
     requestAnimationFrame(loop);
 }
 
@@ -60,3 +64,32 @@ document.addEventListener("keydown", function (e) {
     if (e.code === "ArrowLeft") left();
     if (e.code === "ArrowRight") right();
 });
+let tilesize=32;
+let Arrayalieni = []
+let alienWidth= tilesize*2
+let alienHeight= tilesize;
+let alienX= tilesize;
+let alienY= tilesize;
+let alienImg;
+let alienRows=5;
+let alienColumns=9;
+let alienCount=0;
+alienImg = new Image();
+alienImg.src="./alien.png";
+creaAlieni()
+function creaAlieni(){
+    for(let i=0; i<alienColumns; i++){
+        for(let j=0; j<alienRows; j++){
+            let alieno = {
+                img: alienImg,
+                x: alienX + i*alienWidth,
+                y: alienY + j*alienHeight,
+                width: alienWidth,
+                height: alienHeight,
+                alive: true
+            }
+            Arrayalieni.push(alieno)
+        }
+    }
+    alienCount=Arrayalieni.length
+}
