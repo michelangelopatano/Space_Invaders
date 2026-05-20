@@ -28,6 +28,25 @@ class AlienProjectile {
     }
 }
 
+class ShipProjectile {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 4;
+        this.height = 18;
+        this.speed = 7;
+    }
+
+    update() {
+        this.y -= this.speed;
+    }
+
+    draw() {
+        ctx.fillStyle = "#00ffcc";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+}
+
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
@@ -37,7 +56,7 @@ const bg = new Image();
 const ship_img = new Image();
 const alienImg = new Image();
 let gameOver = false;
-let gameWon = false;
+let returnToMenuScheduled = false;
 
 let assetsLoaded = 0;
 const totalAssets = 3;
@@ -60,12 +79,18 @@ alienImg.src = "alien.png";
 
 const keys = {
     ArrowLeft: false,
-    ArrowRight: false
+    ArrowRight: false,
+    Space: false
 };
 
 document.addEventListener("keydown", (e) => {
     if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
         keys[e.code] = true;
+    }
+
+    if (e.code === "Space" && !keys.Space && !gameOver) {
+        keys.Space = true;
+        sparaShip();
     }
 });
 
@@ -73,11 +98,16 @@ document.addEventListener("keyup", (e) => {
     if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
         keys[e.code] = false;
     }
+
+    if (e.code === "Space") {
+        keys.Space = false;
+    }
 });
 
 window.addEventListener("blur", () => {
     keys.ArrowLeft = false;
     keys.ArrowRight = false;
+    keys.Space = false;
 });
 
 const shipSpeed = 4;
@@ -102,6 +132,7 @@ let alienColumns = 8;
 let alienCount = 0;
 let alienVelocityX = 1;
 const alienProjectiles = [];
+const shipProjectiles = [];
 
 let levelCount = 1;
 let waveCount = 1;
@@ -197,6 +228,17 @@ function updateProjectiles() {
         let p = alienProjectiles[i];
         p.update();
 
+        if (
+            p.position.x + p.radius >= ship.x &&
+            p.position.x - p.radius <= ship.x + ship.width &&
+            p.position.y + p.radius >= ship.y &&
+            p.position.y - p.radius <= ship.y + ship.height
+        ) {
+            alienProjectiles.splice(i, 1);
+            gameOver = true;
+            continue;
+        }
+
         if (p.position.y - p.radius > canvas.height) {
             alienProjectiles.splice(i, 1);
         }
@@ -206,6 +248,49 @@ function updateProjectiles() {
 function drawProjectiles() {
     for (let i = 0; i < alienProjectiles.length; i++) {
         alienProjectiles[i].draw();
+    }
+}
+
+function sparaShip() {
+    shipProjectiles.push(
+        new ShipProjectile(
+            ship.x + ship.width / 2 - 2,
+            ship.y
+        )
+    );
+}
+
+function updateShipProjectiles() {
+    for (let i = shipProjectiles.length - 1; i >= 0; i--) {
+        let p = shipProjectiles[i];
+        p.update();
+
+        if (p.y + p.height < 0) {
+            shipProjectiles.splice(i, 1);
+            continue;
+        }
+
+        for (let j = 0; j < Arrayalieni.length; j++) {
+            let alieno = Arrayalieni[j];
+
+            if (
+                alieno.alive &&
+                p.x < alieno.x + alieno.width &&
+                p.x + p.width > alieno.x &&
+                p.y < alieno.y + alieno.height &&
+                p.y + p.height > alieno.y
+            ) {
+                alieno.alive = false;
+                shipProjectiles.splice(i, 1);
+                break;
+            }
+        }
+    }
+}
+
+function drawShipProjectiles() {
+    for (let i = 0; i < shipProjectiles.length; i++) {
+        shipProjectiles[i].draw();
     }
 }
 
@@ -241,6 +326,7 @@ function loop() {
         updateShip();
         updateAliens();
         updateProjectiles();
+        updateShipProjectiles();
 
         for (let i = 0; i < Arrayalieni.length; i++) {
             let alieno = Arrayalieni[i];
@@ -256,25 +342,42 @@ function loop() {
 
     drawAliens();
     ctx.drawImage(ship_img, ship.x, ship.y, ship.width, ship.height);
+    drawShipProjectiles();
     drawProjectiles();
 
     if (gameOver) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.82)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = "white";
-        ctx.font = "60px Arial";
         ctx.textAlign = "center";
-        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
 
-        ctx.font = "24px Arial";
-        ctx.fillText("Gli alieni hanno raggiunto la navicella", canvas.width / 2, canvas.height / 2 + 50);
+        ctx.fillStyle = "#ff2d55";
+        ctx.font = "48px 'Press Start 2P'";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 60);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "16px 'Press Start 2P'";
+        ctx.fillText("GLI ALIENI HANNO RAGGIUNTO LA TERRA", canvas.width / 2, canvas.height / 2);
+
+        ctx.fillStyle = "#00ffcc";
+        ctx.font = "12px 'Press Start 2P'";
+        ctx.fillText("RIAVVIO TRA 5 SECONDI", canvas.width / 2, canvas.height / 2 + 40);
+
+        if (!returnToMenuScheduled) {
+            returnToMenuScheduled = true;
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+        }
 
         return;
     }
 
     requestAnimationFrame(loop);
 }
+
+
+
 
 function avviaSparoAlieni() {
     setInterval(() => {

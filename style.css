@@ -1,0 +1,31 @@
+#gameWrapper {
+    position: relative;
+    display: inline-block;
+}
+
+#menuBtn {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 62%;
+    transform: translateX(-50%);
+    z-index: 10;
+
+    font-family: 'Press Start 2P', cursive;
+    font-size: 14px;
+    padding: 14px 20px;
+    border: none;
+    background: #ffe600;
+    color: black;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #b89f00;
+}
+
+#menuBtn:hover {
+    transform: translateX(-50%) translateY(-2px);
+}
+
+#menuBtn:active {
+    transform: translateX(-50%) translateY(4px);
+    box-shadow: 0 2px 0 #b89f00;
+}
