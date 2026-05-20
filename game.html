@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Space Invaders</title>
+    <link rel="stylesheet" href="menu.css">
+    <style>
+        canvas {
+            border: 2px solid black;
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <section id="main-menu">
+        <h1 style="font-family: 'Arial Black', Gadget, sans-serif; color: #ffff00; text-shadow: 0 0 14px rgba(255,255,0,0.9); font-size: 4rem; letter-spacing: 0.2rem; margin-bottom: 1rem;">SPACE INVADERS</h1>
+        <div class="tasti-menu">
+            <button class="menu-button" id="nome-input" type="button">Nome giocatore</button>
+            <input id="player-name" class="menu-input" type="text" placeholder="Inserisci il tuo nome">
+        </div>
+        <button class="menu-button" id="gioca-button" type="button">Gioca</button>
+        <button class="menu-button" id="classifica-button" type="button">Classifica</button>
+        <button class="menu-button" id="exit-button" type="button">Esci</button>
+    </section>
+
+    <canvas id="board" width="1000" height="800"></canvas>
+    <script src="ship.js"></script>
+
+</body>
+</html>
