@@ -2,20 +2,61 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Space Invaders</title>
+    <title>Classifica - Space Invaders</title>
     <style>
-        canvas {
-            border: 2px solid black;
-            display: block;
+        body {
+            background: #000;
+            color: #00ffcc;
+            font-family: 'Press Start 2P', cursive;
+            padding: 20px;
+        }
+        table {
             margin: auto;
+            border: 2px solid #00ffcc;
+            width: 80%;
+            text-align: center;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #00ffcc;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #ffe600;
+            color: #000;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <center><h1>Space Invaders</h1></center>
-    <center><h2 id="h2">Livello: 1 Ondata: 1</h2></center>
-<canvas id="board" width="1000" height="800"></canvas>
-<script src="game.js"></script>
-
+    <h1 style="text-align: center;">CLASSIFICA</h1>
+    <table id="leaderboard">
+        <thead>
+            <tr>
+                <th>Posizione</th>
+                <th>Nome</th>
+                <th>Score</th>
+                <th>Livello</th>
+                <th>Data</th>
+            </tr>
+        </thead>
+        <tbody id="scores"></tbody>
+    </table>
+    <center><button onclick="location.href='index.html'">TORNA AL MENU</button></center>
+    <script>
+        const leaderboard = JSON.parse(localStorage.getItem("spaceinvaders_leaderboard")) || [];
+        const tbody = document.getElementById("scores");
+        leaderboard.forEach((player, i) => {
+            tbody.innerHTML += `<tr>
+                <td>${i + 1}</td>
+                <td>${player.nome}</td>
+                <td>${player.score}</td>
+                <td>${player.livello}</td>
+                <td>${player.data}</td>
+            </tr>`;
+        });
+    </script>
 </body>
 </html>
