@@ -1,0 +1,135 @@
+/* Importa un font Pixel Art fedele ai giochi arcade anni '80 */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Reset globale per azzerare i margini del browser */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000;
+    /* Forza il body a occupare tutto lo schermo e centra il contenuto */
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Nasconde il canvas durante la schermata del menù */
+canvas {
+    display: none;
+}
+
+/* Menù centrale a tutto schermo con lo sfondo viola caratteristico */
+#main-menu {
+    background: radial-gradient(circle, #2e0854 0%, #110122 100%);
+    width: 100vw;
+    height: 100vh;
+    /* Centraggio assoluto verticale e orizzontale di tutti gli elementi interni */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Scritta principale SPACE INVADERS corretta e centrata con il nuovo font pixel */
+#main-menu h1 {
+    font-family: 'Press Start 2P', monospace !important;
+    font-size: 3.5rem !important; /* Dimensione bilanciata per il nuovo font */
+    color: #ffff00 !important;
+    text-shadow: 0 0 20px rgba(255, 255, 0, 0.8), 0 0 40px rgba(255, 165, 0, 0.6) !important;
+    text-align: center;
+    margin: 0 0 4rem 0 !important; /* Margine solo inferiore per distanziarlo dai tasti */
+    letter-spacing: 0.2rem;
+    line-height: 1.2;
+    animation: pulse 2s infinite alternate;
+}
+
+/* Contenitore dei tasti e dell'input */
+.tasti-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 1.5rem;
+}
+
+/* Stile dei Pulsanti del Menù adattato al font Pixel */
+.menu-button {
+    font-family: 'Press Start 2P', monospace;
+    background-color: #000000;
+    color: #00ffcc; /* Verde neon */
+    border: 3px solid #00ffcc;
+    padding: 16px 20px;
+    font-size: 1rem; /* I font pixel sono grandi, 1rem è ideale */
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.1rem;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    text-align: center;
+}
+
+/* Effetto Hover sui pulsanti */
+.menu-button:hover {
+    background-color: #00ffcc;
+    color: #000000;
+    box-shadow: 0 0 25px #00ffcc;
+    transform: scale(1.03);
+}
+
+/* Blocco specifico per il finto pulsante "Nome giocatore" */
+#nome-input {
+    border-bottom: none;
+    margin-bottom: 0;
+    cursor: default;
+    pointer-events: none;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Campo di Input del Nome adattato nello stile e centrato */
+.menu-input {
+    font-family: 'Press Start 2P', monospace;
+    background-color: #1a0033;
+    color: #ffffff;
+    border: 3px solid #00ffcc;
+    padding: 14px;
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+    outline: none;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+    transition: all 0.3s;
+}
+
+.menu-input:focus {
+    border-color: #ff00ff; /* Cambia in fucsia quando è attivo */
+    box-shadow: 0 0 20px #ff00ff;
+}
+
+/* Placeholder dell'input */
+.menu-input::placeholder {
+    color: #555;
+    font-size: 0.7rem;
+}
+
+/* Animazione pulsante nostalgica per il titolo */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        text-shadow: 0 0 20px rgba(255,255,0,0.8);
+    }
+    100% {
+        transform: scale(1.02);
+        text-shadow: 0 0 30px rgba(255,255,0,1), 0 0 15px rgba(255,165,0,0.8);
+    }
+}
