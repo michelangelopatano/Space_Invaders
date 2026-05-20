@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Space Invaders</title>
-    <link rel="stylesheet" href="menu.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
     <style>
         canvas {
             border: 2px solid black;
@@ -13,20 +15,12 @@
     </style>
 </head>
 <body>
+    <center><h1>Space Invaders</h1></center>
+    <center><h2 id="h2">Livello: 1 Ondata: 1</h2></center>
+<canvas id="board" width="1000" height="800"></canvas>
+<script src="game.js"></script>
+<button id="menuBtn" style="display: none;">TORNA AL MENU</button>
 
-    <section id="main-menu">
-        <h1 style="font-family: 'Arial Black', Gadget, sans-serif; color: #ffff00; text-shadow: 0 0 14px rgba(255,255,0,0.9); font-size: 4rem; letter-spacing: 0.2rem; margin-bottom: 1rem;">SPACE INVADERS</h1>
-        <div class="tasti-menu">
-            <button class="menu-button" id="nome-input" type="button">Nome giocatore</button>
-            <input id="player-name" class="menu-input" type="text" placeholder="Inserisci il tuo nome">
-        </div>
-        <button class="menu-button" id="gioca-button" type="button" onclick="window.location.href='./index.html'">Gioca</button>
-        <button class="menu-button" id="classifica-button" type="button">Classifica</button>
-        <button class="menu-button" id="exit-button" type="button">Esci</button>
-    </section>
-
-    <canvas id="board" width="1000" height="800"></canvas>
-    <script src="ship.js"></script>
 
 </body>
 </html>

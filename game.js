@@ -49,17 +49,21 @@ class ShipProjectile {
 
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
+const retroFont = "'Silkscreen', 'Courier New', monospace";
 
 const ship = new Ship(450, 720);
 
 const bg = new Image();
 const ship_img = new Image();
 const alienImg = new Image();
+const alienImg2 = new Image();
 let gameOver = false;
 let returnToMenuScheduled = false;
+let levelTransition = false;
+let transitionMessage = "";
 
 let assetsLoaded = 0;
-const totalAssets = 3;
+const totalAssets = 4;
 
 function startIfReady() {
     assetsLoaded++;
@@ -72,10 +76,12 @@ function startIfReady() {
 bg.onload = startIfReady;
 ship_img.onload = startIfReady;
 alienImg.onload = startIfReady;
+alienImg2.onload = startIfReady;
 
-bg.src = "starfield.png";
-ship_img.src = "ship.png";
-alienImg.src = "alien.png";
+bg.src = "img/starfield.png";
+ship_img.src = "img/ship.png";
+alienImg.src = "img/alien.png";
+alienImg2.src = "img/pngwing.com.png";
 
 const keys = {
     ArrowLeft: false,
@@ -88,7 +94,7 @@ document.addEventListener("keydown", (e) => {
         keys[e.code] = true;
     }
 
-    if (e.code === "Space" && !keys.Space && !gameOver) {
+    if (e.code === "Space" && !keys.Space && !gameOver && !levelTransition) {
         keys.Space = true;
         sparaShip();
     }
@@ -137,24 +143,83 @@ const shipProjectiles = [];
 let levelCount = 1;
 let waveCount = 1;
 
+function getAlienSize(img) {
+    if (img === alienImg) {
+        return {
+            width: alienWidth,
+            height: alienHeight
+        };
+    }
+
+    const ratio = img.naturalWidth / img.naturalHeight;
+    const maxWidth = alienWidth * 1.2;
+    const maxHeight = alienHeight * 1.7;
+    let width = maxWidth;
+    let height = width / ratio;
+
+    if (height > maxHeight) {
+        height = maxHeight;
+        width = height * ratio;
+    }
+
+    return {
+        width: width,
+        height: height
+    };
+}
+
+function getAlienHitbox(img, size) {
+    if (img === alienImg2) {
+        return {
+            offsetX: 0,
+            offsetY: 0,
+            width: size.width,
+            height: size.height
+        };
+    }
+
+    return {
+        offsetX: 0,
+        offsetY: 0,
+        width: size.width,
+        height: size.height
+    };
+}
+
+function getAlienHitboxRect(alieno) {
+    return {
+        x: alieno.x + alieno.hitbox.offsetX,
+        y: alieno.y + alieno.hitbox.offsetY,
+        width: alieno.hitbox.width,
+        height: alieno.hitbox.height
+    };
+}
+
 function creaAlieni() {
     Arrayalieni = [];
 
     for (let i = 0; i < alienColumns; i++) {
         for (let j = 0; j < alienRows; j++) {
+            let img = j % 2 === 0 ? alienImg : alienImg2;
+            let size = getAlienSize(img);
+            let hitbox = getAlienHitbox(img, size);
+
             let alieno = {
-                img: alienImg,
-                x: alienX + i * alienWidth,
-                y: alienY + j * alienHeight,
-                width: alienWidth,
-                height: alienHeight,
+                img: img,
+                x: alienX + i * alienWidth + (alienWidth - size.width) / 2,
+                y: alienY + j * alienHeight + (alienHeight - size.height) / 2,
+                width: size.width,
+                height: size.height,
+                hitbox: hitbox,
                 alive: true,
                 shoot: function () {
+                    const rect = getAlienHitboxRect(this);
+
                     alienProjectiles.push(
                         new AlienProjectile({
                             position: {
-                                x: this.x + this.width / 2,
-                                y: this.y + this.height
+                                x: rect.x + rect.width / 2,
+                                y: rect.y + rect.height
                             },
                             velocity: {
                                 x: 0,
@@ -218,7 +283,7 @@ function drawAliens() {
         let alieno = Arrayalieni[i];
 
         if (alieno.alive) {
-            ctx.drawImage(alienImg, alieno.x, alieno.y, alieno.width, alieno.height);
+            ctx.drawImage(alieno.img, alieno.x, alieno.y, alieno.width, alieno.height);
         }
     }
 }
@@ -272,13 +337,14 @@ function updateShipProjectiles() {
 
         for (let j = 0; j < Arrayalieni.length; j++) {
             let alieno = Arrayalieni[j];
+            let rect = getAlienHitboxRect(alieno);
 
             if (
                 alieno.alive &&
-                p.x < alieno.x + alieno.width &&
-                p.x + p.width > alieno.x &&
-                p.y < alieno.y + alieno.height &&
-                p.y + p.height > alieno.y
+                p.x < rect.x + rect.width &&
+                p.x + p.width > rect.x &&
+                p.y < rect.y + rect.height &&
+                p.y + p.height > rect.y
             ) {
                 alieno.alive = false;
                 shipProjectiles.splice(i, 1);
@@ -295,6 +361,8 @@ function drawShipProjectiles() {
 }
 
 function controllaNuovaOndata() {
+    if (levelTransition) return;
+
     let vivi = 0;
 
     for (let i = 0; i < Arrayalieni.length; i++) {
@@ -304,6 +372,7 @@ function controllaNuovaOndata() {
     alienCount = vivi;
 
     if (alienCount === 0) {
+        levelTransition = true;
         waveCount++;
 
         if (waveCount === 3) {
@@ -314,15 +383,41 @@ function controllaNuovaOndata() {
             alienVelocityX = alienVelocityX > 0 ? alienVelocityX + 0.5 : alienVelocityX - 0.5;
         }
 
-        creaAlieni();
+        transitionMessage = "LIVELLO " + levelCount + " - ONDATA " + waveCount;
+        alienProjectiles.length = 0;
+        shipProjectiles.length = 0;
+        aggiornaHUD();
+
+        setTimeout(() => {
+            creaAlieni();
+            levelTransition = false;
+            transitionMessage = "";
+        }, 2000);
     }
+}
+
+function drawLevelTransition() {
+    if (!levelTransition) return;
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.textAlign = "center";
+
+    ctx.fillStyle = "#00ffcc";
+    ctx.font = "700 42px " + retroFont;
+    ctx.fillText(transitionMessage, canvas.width / 2, canvas.height / 2 - 20);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "400 24px " + retroFont;
+    ctx.fillText("PREPARATI", canvas.width / 2, canvas.height / 2 + 35);
 }
 
 function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
-    if (!gameOver) {
+    if (!gameOver && !levelTransition) {
         updateShip();
         updateAliens();
         updateProjectiles();
@@ -330,8 +425,9 @@ function loop() {
 
         for (let i = 0; i < Arrayalieni.length; i++) {
             let alieno = Arrayalieni[i];
+            let rect = getAlienHitboxRect(alieno);
 
-            if (alieno.alive && alieno.y + alieno.height >= ship.y) {
+            if (alieno.alive && rect.y + rect.height >= ship.y) {
                 gameOver = true;
                 break;
             }
@@ -344,6 +440,7 @@ function loop() {
     ctx.drawImage(ship_img, ship.x, ship.y, ship.width, ship.height);
     drawShipProjectiles();
     drawProjectiles();
+    drawLevelTransition();
 
     if (gameOver) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.82)";
@@ -352,15 +449,15 @@ function loop() {
         ctx.textAlign = "center";
 
         ctx.fillStyle = "#ff2d55";
-        ctx.font = "48px 'Press Start 2P'";
+        ctx.font = "700 64px " + retroFont;
         ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 60);
 
         ctx.fillStyle = "#ffffff";
-        ctx.font = "16px 'Press Start 2P'";
+        ctx.font = "400 24px " + retroFont;
         ctx.fillText("GLI ALIENI HANNO RAGGIUNTO LA TERRA", canvas.width / 2, canvas.height / 2);
 
         ctx.fillStyle = "#00ffcc";
-        ctx.font = "12px 'Press Start 2P'";
+        ctx.font = "400 20px " + retroFont;
         ctx.fillText("RIAVVIO TRA 5 SECONDI", canvas.width / 2, canvas.height / 2 + 40);
 
         if (!returnToMenuScheduled) {
@@ -381,6 +478,8 @@ function loop() {
 
 function avviaSparoAlieni() {
     setInterval(() => {
+        if (gameOver || levelTransition) return;
+
         const alieniVivi = Arrayalieni.filter(a => a.alive);
 
         if (alieniVivi.length > 0) {
@@ -397,8 +496,9 @@ avviaSparoAlieni();
 function checkGameOverByAliens() {
     for (let i = 0; i < Arrayalieni.length; i++) {
         let alieno = Arrayalieni[i];
+        let rect = getAlienHitboxRect(alieno);
 
-        if (alieno.alive && alieno.y + alieno.height >= ship.y) {
+        if (alieno.alive && rect.y + rect.height >= ship.y) {
             gameOver = true;
             return;
         }
