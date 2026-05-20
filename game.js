@@ -36,6 +36,8 @@ const ship = new Ship(450, 720);
 const bg = new Image();
 const ship_img = new Image();
 const alienImg = new Image();
+let gameOver = false;
+let gameWon = false;
 
 let assetsLoaded = 0;
 const totalAssets = 3;
@@ -167,7 +169,7 @@ function updateAliens() {
         alienVelocityX *= -1;
 
         for (let i = 0; i < Arrayalieni.length; i++) {
-            if (Arrayalieni[i].alive && Arrayalieni[i].y + alienHeight < ship.y) {
+            if (Arrayalieni[i].alive) {
                 Arrayalieni[i].y += alienHeight;
             }
         }
@@ -235,15 +237,41 @@ function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
-    updateShip();
-    updateAliens();
-    updateProjectiles();
+    if (!gameOver) {
+        updateShip();
+        updateAliens();
+        updateProjectiles();
+
+        for (let i = 0; i < Arrayalieni.length; i++) {
+            let alieno = Arrayalieni[i];
+
+            if (alieno.alive && alieno.y + alieno.height >= ship.y) {
+                gameOver = true;
+                break;
+            }
+        }
+
+        controllaNuovaOndata();
+    }
 
     drawAliens();
     ctx.drawImage(ship_img, ship.x, ship.y, ship.width, ship.height);
     drawProjectiles();
 
-    controllaNuovaOndata();
+    if (gameOver) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "white";
+        ctx.font = "60px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+
+        ctx.font = "24px Arial";
+        ctx.fillText("Gli alieni hanno raggiunto la navicella", canvas.width / 2, canvas.height / 2 + 50);
+
+        return;
+    }
 
     requestAnimationFrame(loop);
 }
@@ -260,3 +288,16 @@ function avviaSparoAlieni() {
 }
 
 avviaSparoAlieni();
+
+
+
+function checkGameOverByAliens() {
+    for (let i = 0; i < Arrayalieni.length; i++) {
+        let alieno = Arrayalieni[i];
+
+        if (alieno.alive && alieno.y + alieno.height >= ship.y) {
+            gameOver = true;
+            return;
+        }
+    }
+}
