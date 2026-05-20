@@ -41,25 +41,35 @@ function startIfReady() {
 
 bg.onload = startIfReady;
 ship_img.onload = startIfReady;
-
+let gameover=false;
 function loop() {
+    if(gameover){
+        return;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-
+    
     ctx.drawImage(ship_img, ship.x, ship.y, 50, 50);
+    let giu=false;
     for(let i=0; i<Arrayalieni.length; i++){
         let alieno=Arrayalieni[i]
         if(alieno.alive){
             alieno.x=alieno.x+alienVelocityX;
             if(alieno.x + alieno.width >=920 || alieno.x <=0){
-                alienVelocityX=alienVelocityX*-1;
-                alieno.x=alieno.x+alienVelocityX*2;
-                for(let j=0; j<Arrayalieni.length; j++){
-                    Arrayalieni[j].y=Arrayalieni[j].y+alienHeight
-                }
+                giu=true;
             }
-            ctx.drawImage(alienImg, alieno.x, alieno.y, alieno.width, alieno.height)
+            if(alieno.x<ship.x+50 && alieno.x+alieno.width>ship.x && alieno.y<ship.y+50 && alieno.y+alieno.height>ship.y){
+                gameover=true;
+            }
+            ctx.drawImage(alienImg, alieno.x, alieno.y, alieno.width, alieno.height);
+        }
+    }
+    if(giu){
+        alienVelocityX=alienVelocityX*-1;
+        for(let j=0; j<Arrayalieni.length; j++){
+            Arrayalieni[j].x+=alienVelocityX*2;
+            Arrayalieni[j].y+=alienHeight;
         }
     }
     alienProjectiles.forEach(p => {
@@ -100,7 +110,7 @@ let alienImg;
 let alienRows=5;
 let alienColumns=8;
 let alienCount=0;
-let alienVelocityX=1;
+let alienVelocityX=2;
 const alienProjectiles = [];
 alienImg = new Image();
 alienImg.src="./alien.png";
@@ -144,6 +154,7 @@ if(levelCount==1){
     }, 750);
 }
 if(levelCount==2){
+    alienVelocityX=3;
     setInterval(() => { 
         if(Arrayalieni.length>0){
             Arrayalieni[Math.floor(Math.random() * Arrayalieni.length)].shoot(alienProjectiles);
@@ -151,6 +162,7 @@ if(levelCount==2){
     }, 500);
 }
 if(levelCount==3){
+    alienVelocityX=4;
     setInterval(() => { 
         if(Arrayalieni.length>0){
             Arrayalieni[Math.floor(Math.random() * Arrayalieni.length)].shoot(alienProjectiles);
