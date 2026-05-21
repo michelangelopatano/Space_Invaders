@@ -22,7 +22,7 @@ class AlienProjectile {
     draw() {
         ctx.beginPath();
         ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "white";
+        ctx.fillStyle = "#ff00ff"; // Proiettili alieni fucsia neon
         ctx.fill();
         ctx.closePath();
     }
@@ -51,6 +51,9 @@ const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 const retroFont = "'Silkscreen', 'Courier New', monospace";
 
+// Recupero dati giocatore dal Menu
+const playerName = sessionStorage.getItem('currentPlayer') || "Player 1";
+
 const ship = new Ship(450, 720);
 
 const bg = new Image();
@@ -64,6 +67,10 @@ let transitionMessage = "";
 
 let assetsLoaded = 0;
 const totalAssets = 4;
+
+// Nuove variabili di stato per il giocatore
+let score = 0;
+let lives = 3;
 
 function startIfReady() {
     assetsLoaded++;
@@ -116,7 +123,7 @@ window.addEventListener("blur", () => {
     keys.Space = false;
 });
 
-const shipSpeed = 4;
+const shipSpeed = 6;
 
 function updateShip() {
     if (keys.ArrowLeft && ship.x > 0) {
@@ -132,7 +139,7 @@ let Arrayalieni = [];
 let alienWidth = tilesize * 2;
 let alienHeight = tilesize;
 let alienX = tilesize;
-let alienY = tilesize;
+let alienY = 90; // Abbassato per fare spazio all'HUD grafico
 let alienRows = 5;
 let alienColumns = 8;
 let alienCount = 0;
@@ -145,12 +152,8 @@ let waveCount = 1;
 
 function getAlienSize(img) {
     if (img === alienImg) {
-        return {
-            width: alienWidth,
-            height: alienHeight
-        };
+        return { width: alienWidth, height: alienHeight };
     }
-
     const ratio = img.naturalWidth / img.naturalHeight;
     const maxWidth = alienWidth * 1.2;
     const maxHeight = alienHeight * 1.7;
@@ -161,29 +164,7 @@ function getAlienSize(img) {
         height = maxHeight;
         width = height * ratio;
     }
-
-    return {
-        width: width,
-        height: height
-    };
-}
-
-function getAlienHitbox(img, size) {
-    if (img === alienImg2) {
-        return {
-            offsetX: 0,
-            offsetY: 0,
-            width: size.width,
-            height: size.height
-        };
-    }
-
-    return {
-        offsetX: 0,
-        offsetY: 0,
-        width: size.width,
-        height: size.height
-    };
+    return { width: width, height: height };
 }
 
 function getAlienHitboxRect(alieno) {
@@ -202,47 +183,57 @@ function creaAlieni() {
         for (let j = 0; j < alienRows; j++) {
             let img = j % 2 === 0 ? alienImg : alienImg2;
             let size = getAlienSize(img);
-            let hitbox = getAlienHitbox(img, size);
-
+            
             let alieno = {
                 img: img,
                 x: alienX + i * alienWidth + (alienWidth - size.width) / 2,
                 y: alienY + j * alienHeight + (alienHeight - size.height) / 2,
                 width: size.width,
                 height: size.height,
-                hitbox: hitbox,
+                hitbox: { offsetX: 0, offsetY: 0, width: size.width, height: size.height },
                 alive: true,
                 shoot: function () {
                     const rect = getAlienHitboxRect(this);
-
                     alienProjectiles.push(
                         new AlienProjectile({
-                            position: {
-                                x: rect.x + rect.width / 2,
-                                y: rect.y + rect.height
-                            },
-                            velocity: {
-                                x: 0,
-                                y: 5
-                            }
+                            position: { x: rect.x + rect.width / 2, y: rect.y + rect.height },
+                            velocity: { x: 0, y: 4 + levelCount * 0.5 } // I proiettili accelerano con i livelli
                         })
                     );
                 }
             };
-
             Arrayalieni.push(alieno);
         }
     }
-
     alienCount = Arrayalieni.length;
-    aggiornaHUD();
 }
 
-function aggiornaHUD() {
-    const h2 = document.getElementById("h2");
-    if (h2) {
-        h2.innerText = "Livello: " + levelCount + " Ondata: " + waveCount;
-    }
+// Disegna l'HUD in-game sul canvas
+function drawHUD() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    ctx.fillRect(0, 0, canvas.width, 60);
+    ctx.strokeStyle = "#00ffcc";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 60);
+    ctx.lineTo(canvas.width, 60);
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "16px " + retroFont;
+    ctx.textAlign = "left";
+    ctx.fillText(`PILOTA: ${playerName.toUpperCase()}`, 20, 38);
+
+    ctx.textAlign = "center";
+    ctx.fillText(`LIVELLO: ${levelCount} - ONDATA: ${waveCount}`, canvas.width / 2, 38);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#ffff00";
+    ctx.fillText(`SCORE: ${score}`, canvas.width - 200, 38);
+
+    // Cuori per le vite residune
+    ctx.fillStyle = "#ff2d55";
+    ctx.fillText(`VITE: ${"♥ ".repeat(lives)}`, canvas.width - 20, 38);
 }
 
 function updateAliens() {
@@ -254,19 +245,16 @@ function updateAliens() {
         if (!alieno.alive) continue;
 
         if (alieno.x < leftMost) leftMost = alieno.x;
-        if (alieno.x + alieno.width > rightMost) {
-            rightMost = alieno.x + alieno.width;
-        }
+        if (alieno.x + alieno.width > rightMost) rightMost = alieno.x + alieno.width;
     }
 
     if (leftMost === Infinity) return;
 
     if (rightMost + alienVelocityX >= canvas.width || leftMost + alienVelocityX <= 0) {
         alienVelocityX *= -1;
-
         for (let i = 0; i < Arrayalieni.length; i++) {
             if (Arrayalieni[i].alive) {
-                Arrayalieni[i].y += alienHeight;
+                Arrayalieni[i].y += 20; // Velocità di discesa costante controllata
             }
         }
     } else {
@@ -281,7 +269,6 @@ function updateAliens() {
 function drawAliens() {
     for (let i = 0; i < Arrayalieni.length; i++) {
         let alieno = Arrayalieni[i];
-
         if (alieno.alive) {
             ctx.drawImage(alieno.img, alieno.x, alieno.y, alieno.width, alieno.height);
         }
@@ -300,7 +287,11 @@ function updateProjectiles() {
             p.position.y - p.radius <= ship.y + ship.height
         ) {
             alienProjectiles.splice(i, 1);
-            gameOver = true;
+            lives--; // Perdi una vita
+            if (lives <= 0) {
+                gameOver = true;
+                salvaInClassifica();
+            }
             continue;
         }
 
@@ -317,12 +308,7 @@ function drawProjectiles() {
 }
 
 function sparaShip() {
-    shipProjectiles.push(
-        new ShipProjectile(
-            ship.x + ship.width / 2 - 2,
-            ship.y
-        )
-    );
+    shipProjectiles.push(new ShipProjectile(ship.x + ship.width / 2 - 2, ship.y));
 }
 
 function updateShipProjectiles() {
@@ -348,6 +334,7 @@ function updateShipProjectiles() {
             ) {
                 alieno.alive = false;
                 shipProjectiles.splice(i, 1);
+                score += 100 * levelCount; // Il punteggio scala col livello
                 break;
             }
         }
@@ -364,7 +351,6 @@ function controllaNuovaOndata() {
     if (levelTransition) return;
 
     let vivi = 0;
-
     for (let i = 0; i < Arrayalieni.length; i++) {
         if (Arrayalieni[i].alive) vivi++;
     }
@@ -378,15 +364,14 @@ function controllaNuovaOndata() {
         if (waveCount === 3) {
             waveCount = 1;
             levelCount++;
-            alienColumns = Math.min(alienColumns + 1, 15);
-            alienRows = Math.min(alienRows + 1, 10);
-            alienVelocityX = alienVelocityX > 0 ? alienVelocityX + 0.5 : alienVelocityX - 0.5;
+            alienColumns = Math.min(alienColumns + 1, 12);
+            alienRows = Math.min(alienRows + 1, 7);
+            alienVelocityX = alienVelocityX > 0 ? alienVelocityX + 0.3 : alienVelocityX - 0.3;
         }
 
         transitionMessage = "LIVELLO " + levelCount + " - ONDATA " + waveCount;
         alienProjectiles.length = 0;
         shipProjectiles.length = 0;
-        aggiornaHUD();
 
         setTimeout(() => {
             creaAlieni();
@@ -399,18 +384,24 @@ function controllaNuovaOndata() {
 function drawLevelTransition() {
     if (!levelTransition) return;
 
-    ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.textAlign = "center";
-
     ctx.fillStyle = "#00ffcc";
     ctx.font = "700 42px " + retroFont;
     ctx.fillText(transitionMessage, canvas.width / 2, canvas.height / 2 - 20);
 
     ctx.fillStyle = "#ffffff";
     ctx.font = "400 24px " + retroFont;
-    ctx.fillText("PREPARATI", canvas.width / 2, canvas.height / 2 + 35);
+    ctx.fillText("PREPARATI ALL'INGAGGIO", canvas.width / 2, canvas.height / 2 + 35);
+}
+
+// Salva i dati localmente per la classifica
+function salvaInClassifica() {
+    let leaderboard = JSON.parse(localStorage.getItem('space_invaders_leaderboard')) || [];
+    leaderboard.push({ name: playerName, score: score });
+    localStorage.setItem('space_invaders_leaderboard', JSON.stringify(leaderboard));
 }
 
 function loop() {
@@ -429,10 +420,10 @@ function loop() {
 
             if (alieno.alive && rect.y + rect.height >= ship.y) {
                 gameOver = true;
+                salvaInClassifica();
                 break;
             }
         }
-
         controllaNuovaOndata();
     }
 
@@ -440,67 +431,48 @@ function loop() {
     ctx.drawImage(ship_img, ship.x, ship.y, ship.width, ship.height);
     drawShipProjectiles();
     drawProjectiles();
+    drawHUD();
     drawLevelTransition();
 
     if (gameOver) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.82)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         ctx.textAlign = "center";
-
         ctx.fillStyle = "#ff2d55";
         ctx.font = "700 64px " + retroFont;
         ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 60);
 
         ctx.fillStyle = "#ffffff";
         ctx.font = "400 24px " + retroFont;
-        ctx.fillText("GLI ALIENI HANNO RAGGIUNTO LA TERRA", canvas.width / 2, canvas.height / 2);
+        ctx.fillText(`PUNTEGGIO FINALE: ${score}`, canvas.width / 2, canvas.height / 2 + 10);
 
         ctx.fillStyle = "#00ffcc";
         ctx.font = "400 20px " + retroFont;
-        ctx.fillText("RIAVVIO TRA 5 SECONDI", canvas.width / 2, canvas.height / 2 + 40);
+        ctx.fillText("RITORNO AL MENU TRA 5 SECONDI", canvas.width / 2, canvas.height / 2 + 70);
 
         if (!returnToMenuScheduled) {
             returnToMenuScheduled = true;
             setTimeout(() => {
-                location.reload();
+                window.location.href = './index.html';
             }, 5000);
         }
-
         return;
     }
 
     requestAnimationFrame(loop);
 }
 
-
-
-
 function avviaSparoAlieni() {
     setInterval(() => {
         if (gameOver || levelTransition) return;
 
         const alieniVivi = Arrayalieni.filter(a => a.alive);
-
         if (alieniVivi.length > 0) {
             const randomAlien = alieniVivi[Math.floor(Math.random() * alieniVivi.length)];
             randomAlien.shoot();
         }
-    }, 750);
+    }, 800 - (levelCount * 50)); // Gli alieni sparano più velocemente salendo di livello
 }
 
 avviaSparoAlieni();
-
-
-
-function checkGameOverByAliens() {
-    for (let i = 0; i < Arrayalieni.length; i++) {
-        let alieno = Arrayalieni[i];
-        let rect = getAlienHitboxRect(alieno);
-
-        if (alieno.alive && rect.y + rect.height >= ship.y) {
-            gameOver = true;
-            return;
-        }
-    }
-}
