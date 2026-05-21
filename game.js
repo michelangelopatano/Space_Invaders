@@ -359,9 +359,11 @@ function controllaNuovaOndata() {
 
     if (alienCount === 0) {
         levelTransition = true;
-        waveCount++;
 
-        if (waveCount === 3) {
+
+        if (waveCount<3) {
+            waveCount++;
+        }else{ 
             waveCount = 1;
             levelCount++;
             alienColumns = Math.min(alienColumns + 1, 12);
