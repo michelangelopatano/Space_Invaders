@@ -22,7 +22,7 @@ class AlienProjectile {
     draw() {
         ctx.beginPath();
         ctx.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#ff00ff"; // Proiettili alieni fucsia neon
+        ctx.fillStyle = "#ff00ff";
         ctx.fill();
         ctx.closePath();
     }
@@ -51,7 +51,6 @@ const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 const retroFont = "'Silkscreen', 'Courier New', monospace";
 
-// Recupero dati giocatore dal Menu
 const playerName = sessionStorage.getItem('currentPlayer') || "Player 1";
 
 const ship = new Ship(450, 720);
@@ -68,7 +67,6 @@ let transitionMessage = "";
 let assetsLoaded = 0;
 const totalAssets = 4;
 
-// Nuove variabili di stato per il giocatore
 let score = 0;
 let lives = 3;
 
@@ -139,7 +137,7 @@ let Arrayalieni = [];
 let alienWidth = tilesize * 2;
 let alienHeight = tilesize;
 let alienX = tilesize;
-let alienY = 90; // Abbassato per fare spazio all'HUD grafico
+let alienY = 90;
 let alienRows = 5;
 let alienColumns = 8;
 let alienCount = 0;
@@ -197,7 +195,7 @@ function creaAlieni() {
                     alienProjectiles.push(
                         new AlienProjectile({
                             position: { x: rect.x + rect.width / 2, y: rect.y + rect.height },
-                            velocity: { x: 0, y: 4 + levelCount * 0.5 } // I proiettili accelerano con i livelli
+                            velocity: { x: 0, y: 4 + levelCount * 0.5 }
                         })
                     );
                 }
@@ -208,7 +206,6 @@ function creaAlieni() {
     alienCount = Arrayalieni.length;
 }
 
-// Disegna l'HUD in-game sul canvas
 function drawHUD() {
     ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
     ctx.fillRect(0, 0, canvas.width, 60);
@@ -231,7 +228,6 @@ function drawHUD() {
     ctx.fillStyle = "#ffff00";
     ctx.fillText(`SCORE: ${score}`, canvas.width - 200, 38);
 
-    // Cuori per le vite residune
     ctx.fillStyle = "#ff2d55";
     ctx.fillText(`VITE: ${"♥ ".repeat(lives)}`, canvas.width - 20, 38);
 }
@@ -254,7 +250,7 @@ function updateAliens() {
         alienVelocityX *= -1;
         for (let i = 0; i < Arrayalieni.length; i++) {
             if (Arrayalieni[i].alive) {
-                Arrayalieni[i].y += 20; // Velocità di discesa costante controllata
+                Arrayalieni[i].y += 20;
             }
         }
     } else {
@@ -287,7 +283,7 @@ function updateProjectiles() {
             p.position.y - p.radius <= ship.y + ship.height
         ) {
             alienProjectiles.splice(i, 1);
-            lives--; // Perdi una vita
+            lives--;
             if (lives <= 0) {
                 gameOver = true;
                 salvaInClassifica();
@@ -334,7 +330,7 @@ function updateShipProjectiles() {
             ) {
                 alieno.alive = false;
                 shipProjectiles.splice(i, 1);
-                score += 100 * levelCount; // Il punteggio scala col livello
+                score += 100 * levelCount;
                 break;
             }
         }
@@ -359,11 +355,9 @@ function controllaNuovaOndata() {
 
     if (alienCount === 0) {
         levelTransition = true;
+        waveCount++;
 
-
-        if (waveCount<3) {
-            waveCount++;
-        }else{ 
+        if (waveCount === 3) {
             waveCount = 1;
             levelCount++;
             alienColumns = Math.min(alienColumns + 1, 12);
@@ -399,11 +393,15 @@ function drawLevelTransition() {
     ctx.fillText("PREPARATI ALL'INGAGGIO", canvas.width / 2, canvas.height / 2 + 35);
 }
 
-// Salva i dati localmente per la classifica
 function salvaInClassifica() {
-    let leaderboard = JSON.parse(localStorage.getItem('space_invaders_leaderboard')) || [];
-    leaderboard.push({ name: playerName, score: score });
-    localStorage.setItem('space_invaders_leaderboard', JSON.stringify(leaderboard));
+    try {
+        let leaderboard = JSON.parse(localStorage.getItem('space_invaders_leaderboard')) || [];
+        leaderboard.push({ name: playerName, score: score });
+        const json = JSON.stringify(leaderboard);
+        localStorage.setItem('space_invaders_leaderboard', json);
+        let verifica = localStorage.getItem('space_invaders_leaderboard');
+    } catch(e) {}
+
 }
 
 function loop() {
@@ -474,7 +472,7 @@ function avviaSparoAlieni() {
             const randomAlien = alieniVivi[Math.floor(Math.random() * alieniVivi.length)];
             randomAlien.shoot();
         }
-    }, 800 - (levelCount * 50)); // Gli alieni sparano più velocemente salendo di livello
+    }, 800 - (levelCount * 50));
 }
 
 avviaSparoAlieni();
