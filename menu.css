@@ -1,7 +1,5 @@
-/* Importa il font Pixel Art retrò */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* Reset globale per azzerare i margini nativi del browser */
 * {
     margin: 0;
     padding: 0;
@@ -15,17 +13,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Impedisce la comparsa di barre di scorrimento fastidiose */
+    overflow: hidden;
 }
 
-/* GESTIONE DELLO SPAZIO: Nasconde il canvas di gioco nella schermata iniziale */
 #board {
     display: none;
-    border: 2px solid #4a0e8f; /* Opzionale: bordo viola coordinato invece che nero */
+    border: 2px solid #4a0e8f;
     margin: auto;
 }
 
-/* Menù centrale a tutto schermo con lo sfondo viola caratteristico */
 #main-menu {
     background: radial-gradient(circle, #2e0854 0%, #110122 100%);
     width: 100vw;
@@ -35,26 +31,24 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    position: absolute; /* Sovrascrive la struttura per prendere tutto lo schermo */
+    position: absolute;
     top: 0;
     left: 0;
     z-index: 10;
 }
 
-/* Titolo SPACE INVADERS: Sovrascrive gli stili inline dell'HTML per usare il font Pixel */
 #main-menu h1 {
     font-family: 'Press Start 2P', monospace !important;
     font-size: 3.5rem !important;
     color: #ffff00 !important;
     text-shadow: 0 0 20px rgba(255, 255, 0, 0.8), 0 0 40px rgba(255, 165, 0, 0.6) !important;
     text-align: center;
-    margin-bottom: 4rem !important; /* Spazio controllato sotto il titolo */
+    margin-bottom: 4rem !important;
     letter-spacing: 0.2rem;
     line-height: 1.2;
     animation: pulse 2s infinite alternate;
 }
 
-/* Gruppo contenitore per il finto tasto e l'input di testo */
 .tasti-menu {
     display: flex;
     flex-direction: column;
@@ -64,11 +58,10 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* Stile unico per tutti i Pulsanti del Menù (.menu-button) */
 .menu-button {
     font-family: 'Press Start 2P', monospace;
     background-color: #000000;
-    color: #00ffcc; /* Verde neon stile cabinato */
+    color: #00ffcc;
     border: 3px solid #00ffcc;
     padding: 16px 20px;
     font-size: 1rem;
@@ -83,7 +76,6 @@ body {
     text-align: center;
 }
 
-/* Effetto Hover dinamico sui pulsanti */
 .menu-button:hover {
     background-color: #00ffcc;
     color: #000000;
@@ -91,12 +83,11 @@ body {
     transform: scale(1.03);
 }
 
-/* Modifica specifica per il finto pulsante statico "Nome giocatore" */
 #nome-input {
     border-bottom: none;
     margin-bottom: 0;
     cursor: default;
-    pointer-events: none; /* Disabilita i click ed evita l'effetto hover */
+    pointer-events: none;
     background-color: rgba(0, 0, 0, 0.7);
 }
 
@@ -107,7 +98,6 @@ body {
     transform: none;
 }
 
-/* Campo di Input del Nome (#player-name agganciato alla classe .menu-input) */
 .menu-input {
     font-family: 'Press Start 2P', monospace;
     background-color: #1a0033;
@@ -122,19 +112,16 @@ body {
     transition: all 0.3s;
 }
 
-/* Quando l'utente clicca dentro la casella di testo per scrivere */
 .menu-input:focus {
-    border-color: #ff00ff; /* Colore fucsia arcade */
+    border-color: #ff00ff;
     box-shadow: 0 0 20px #ff00ff;
 }
 
-/* Personalizzazione del testo segnaposto */
 .menu-input::placeholder {
     color: #555;
     font-size: 0.75rem;
 }
 
-/* Animazione di pulsazione vintage per il titolo */
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -145,3 +132,53 @@ body {
         text-shadow: 0 0 35px rgba(255,255,0,1), 0 0 15px rgba(255,165,0,0.8);
     }
 }
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content {
+    background: radial-gradient(circle, #2e0854 0%, #110122 100%);
+    border: 4px solid #ff00ff;
+    box-shadow: 0 0 25px #ff00ff;
+    padding: 40px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+}
+
+.modal-content h2 {
+    color: #ffff00;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    text-shadow: 0 0 10px #ffff00;
+}
+
+#leaderboard-list {
+    list-style: none;
+    margin-bottom: 2rem;
+    text-align: left;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#leaderboard-list li {
+    color: #ffffff;
+    font-size: 0.9rem;
+    padding: 10px 0;
+    border-bottom: 1px dashed #4a0e8f;
+}
+
+#leaderboard-list li:nth-child(1) { color: #ffff00; }
+#leaderboard-list li:nth-child(2) { color: #d1d1d1; }
+#leaderboard-list li:nth-child(3) { color: #cd7f32; }

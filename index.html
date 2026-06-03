@@ -2,31 +2,68 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Space Invaders</title>
+    <title>Space Invaders - Menu</title>
     <link rel="stylesheet" href="menu.css">
-    <style>
-        canvas {
-            border: 2px solid black;
-            display: block;
-            margin: auto;
-        }
-    </style>
 </head>
 <body>
 
     <section id="main-menu">
-        <h1 style="font-family: 'Arial Black', Gadget, sans-serif; color: #ffff00; text-shadow: 0 0 14px rgba(255,255,0,0.9); font-size: 4rem; letter-spacing: 0.2rem; margin-bottom: 1rem;">SPACE INVADERS</h1>
+        <h1>SPACE INVADERS</h1>
         <div class="tasti-menu">
             <button class="menu-button" id="nome-input" type="button">Nome giocatore</button>
-            <input id="player-name" class="menu-input" type="text" placeholder="Inserisci il tuo nome">
+            <input id="player-name" class="menu-input" type="text" placeholder="Inserisci il tuo nome" value="Player 1">
         </div>
-        <button class="menu-button" id="gioca-button" type="button" onclick="window.location.href='./game.html'">Gioca</button>
+        <button class="menu-button" id="gioca-button" type="button">Gioca</button>
         <button class="menu-button" id="classifica-button" type="button">Classifica</button>
-        <button class="menu-button" id="exit-button" type="button">Esci</button>
     </section>
 
-    <canvas id="board" width="1000" height="800"></canvas>
-    <script src="ship.js"></script>
+    <div id="leaderboard-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>CLASSIFICA</h2>
+            <ul id="leaderboard-list"></ul>
+            <button class="menu-button" id="close-leaderboard">Chiudi</button>
+            <button class="menu-button" id="reset-leaderboard" style="background-color: #ff2d55;">Pulisci Classifica</button>
+        </div>
+    </div>
 
+    <script>
+        document.getElementById('gioca-button').addEventListener('click', () => {
+            let name = document.getElementById('player-name').value.trim();
+            if(!name) name = "Anonimo";
+            sessionStorage.setItem('currentPlayer', name);
+            window.location.href = './game.html';
+        });
+
+        document.getElementById('classifica-button').addEventListener('click', () => {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = '';
+            let leaderboard = JSON.parse(localStorage.getItem('space_invaders_leaderboard')) || [];
+            console.log('✓ Leaderboard caricata:', leaderboard);
+            leaderboard.sort((a, b) => b.score - a.score);
+
+            if(leaderboard.length === 0) {
+                list.innerHTML = '<li>Nessun record</li>';
+            } else {
+                leaderboard.slice(0, 10).forEach((entry, index) => {
+                    let li = document.createElement('li');
+                    li.textContent = `${index + 1}. ${entry.name} - ${entry.score} PT`;
+                    list.appendChild(li);
+                });
+            }
+            document.getElementById('leaderboard-modal').style.display = 'flex';
+        });
+
+        document.getElementById('close-leaderboard').addEventListener('click', () => {
+            document.getElementById('leaderboard-modal').style.display = 'none';
+        });
+
+        document.getElementById('reset-leaderboard').addEventListener('click', () => {
+            if(confirm('Sei sicuro? Questo eliminerà tutti i record.')) {
+                localStorage.removeItem('space_invaders_leaderboard');
+                console.log('✓ Classifica eliminata');
+                document.getElementById('leaderboard-list').innerHTML = '<li>Nessun record</li>';
+            }
+        });
+    </script>
 </body>
 </html>
