@@ -385,7 +385,7 @@ function drawLevelTransition() {
 
     ctx.textAlign = "center";
     ctx.fillStyle = "#00ffcc";
-    ctx.font = "700 42px " + retroFont;
+    ctx.font = "500 42px " + retroFont;
     ctx.fillText(transitionMessage, canvas.width / 2, canvas.height / 2 - 20);
 
     ctx.fillStyle = "#ffffff";
@@ -440,7 +440,7 @@ function loop() {
 
         ctx.textAlign = "center";
         ctx.fillStyle = "#ff2d55";
-        ctx.font = "700 64px " + retroFont;
+        ctx.font = "400 64px " + retroFont;
         ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 60);
 
         ctx.fillStyle = "#ffffff";
