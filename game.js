@@ -361,7 +361,7 @@ function controllaNuovaOndata() {
             waveCount = 1;
             levelCount++;
             alienColumns = Math.min(alienColumns + 1, 12);
-            alienRows = Math.min(alienRows + 1, 7);
+            alienRows = Math.min(alienRows + 1, 9);
             alienVelocityX = alienVelocityX > 0 ? alienVelocityX + 0.3 : alienVelocityX - 0.3;
         }
 
